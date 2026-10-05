@@ -64,7 +64,7 @@ class _HomeScreenState extends State<HomeScreen> {
       'category': 'مشاوي',
       'price': 120000,
       'desc': 'كباب، شقف، طاووق، مع بصل وبندورة مشوية وخبر محمر',
-      'icon': Icons.kebab_dining,
+      'icon': Icons.restaurant,
     },
     {
       'name': 'عصير برتقال طبيعي',
@@ -191,7 +191,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                item['name'],
+                                item['name'] as String,
                                 style: const TextStyle(
                                   fontSize: 15,
                                   fontWeight: FontWeight.bold,
@@ -199,7 +199,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               ),
                               const SizedBox(height: 4),
                               Text(
-                                item['desc'],
+                                item['desc'] as String,
                                 style: TextStyle(
                                   fontSize: 12,
                                   color: Colors.grey[600],
