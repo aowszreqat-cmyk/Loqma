@@ -7,7 +7,7 @@ void main() async {
   try {
     await Firebase.initializeApp();
   } catch (e) {
-    debugPrint("Firebase initialization info: $e");
+    debugPrint("Firebase init error: $e");
   }
   runApp(const LoqmaApp());
 }
@@ -22,9 +22,7 @@ class LoqmaApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         primarySwatch: Colors.orange,
-        primaryColor: const Color(0xFFFF6B00),
         scaffoldBackgroundColor: const Color(0xFFF8F9FA),
-        fontFamily: 'Roboto',
         useMaterial3: true,
       ),
       home: const Directionality(
@@ -35,9 +33,7 @@ class LoqmaApp extends StatelessWidget {
   }
 }
 
-// ============================================================================
-// 1. شاشة قائمة المطاعم الرئيسية في درعا
-// ============================================================================
+// 1. شاشة قائمة المطاعم
 class RestaurantsListScreen extends StatefulWidget {
   const RestaurantsListScreen({super.key});
 
@@ -49,7 +45,7 @@ class _RestaurantsListScreenState extends State<RestaurantsListScreen> {
   String _selectedCategory = 'الكل';
   String _searchQuery = '';
 
-  final List<String> _categories = ['الكل', 'شاورما', 'وجبات سريعة', 'مشاوي', 'بيتزا', 'حلويات'];
+  final List<String> _categories = ['الكل', 'شاورما', 'وجبات سريعة', 'مشاوي', 'بيتزا'];
 
   final List<Map<String, dynamic>> _restaurants = [
     {
@@ -77,7 +73,6 @@ class _RestaurantsListScreenState extends State<RestaurantsListScreen> {
       'menu': [
         {'id': 'm4', 'name': 'كيلو مشاوي مشكل', 'price': 130000, 'desc': 'كباب، شقف، طاووق، خضار مشوية'},
         {'id': 'm5', 'name': 'وجبة كباب حلبجي', 'price': 42000, 'desc': '4 سيخ كباب مع ربيعة وسلطات'},
-        {'id': 'm6', 'name': 'وجبة شيش طاووق', 'price': 38000, 'desc': '3 أسياخ طاووق مع ثومية ومحمرة'},
       ]
     },
     {
@@ -89,9 +84,8 @@ class _RestaurantsListScreenState extends State<RestaurantsListScreen> {
       'deliveryFee': 6000,
       'imageIcon': Icons.local_pizza,
       'menu': [
-        {'id': 'm7', 'name': 'بيتزا ببروني عائلي', 'price': 55000, 'desc': 'جبنة موزاريللا وصوص بيتزا إيطالي'},
-        {'id': 'm8', 'name': 'وجبة كرسبي 5 قطع', 'price': 36000, 'desc': 'بطاطا، كولسلو، صوص خاص'},
-        {'id': 'm9', 'name': 'برغر دبل تشيز', 'price': 30000, 'desc': 'شريحتين لحم بقر مع شيدر وبطاطا'},
+        {'id': 'm6', 'name': 'بيتزا ببروني عائلي', 'price': 55000, 'desc': 'جبنة موزاريللا وصوص بيتزا'},
+        {'id': 'm7', 'name': 'وجبة كرسبي 5 قطع', 'price': 36000, 'desc': 'بطاطا، كولسلو، صوص خاص'},
       ]
     },
   ];
@@ -107,25 +101,23 @@ class _RestaurantsListScreenState extends State<RestaurantsListScreen> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: const Color(0xFFFF6B00),
-        elevation: 0,
         title: const Row(
           children: [
-            Icon(Icons.delivery_dining, color: Colors.white, size: 30),
-            SizedBox(width: 10),
-            Text('لُقمة - توصيل درعا', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+            Icon(Icons.delivery_dining, color: Colors.white, size: 28),
+            SizedBox(width: 8),
+            Text('لُقمة - درعا', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
           ],
         ),
       ),
       body: Column(
         children: [
-          // شريط البحث
           Container(
             padding: const EdgeInsets.all(12),
             color: const Color(0xFFFF6B00),
             child: TextField(
               onChanged: (val) => setState(() => _searchQuery = val),
               decoration: InputDecoration(
-                hintText: 'ابحث عن مطعم أو وجبة...',
+                hintText: 'ابحث عن مطعم...',
                 prefixIcon: const Icon(Icons.search, color: Colors.orange),
                 fillColor: Colors.white,
                 filled: true,
@@ -134,8 +126,6 @@ class _RestaurantsListScreenState extends State<RestaurantsListScreen> {
               ),
             ),
           ),
-
-          // تصنيفات المطاعم
           Container(
             height: 55,
             padding: const EdgeInsets.symmetric(vertical: 8),
@@ -149,7 +139,7 @@ class _RestaurantsListScreenState extends State<RestaurantsListScreen> {
                   onTap: () => setState(() => _selectedCategory = cat),
                   child: Container(
                     margin: const EdgeInsets.symmetric(horizontal: 6),
-                    padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 8),
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                     decoration: BoxDecoration(
                       color: isSelected ? const Color(0xFFFF6B00) : Colors.white,
                       borderRadius: BorderRadius.circular(20),
@@ -167,74 +157,70 @@ class _RestaurantsListScreenState extends State<RestaurantsListScreen> {
               },
             ),
           ),
-
-          // قائمة المطاعم
           Expanded(
-            child: filteredRestaurants.isEmpty
-                ? const Center(child: Text('لا توجد مطاعم مطابقة للبحث'))
-                : ListView.builder(
-                    padding: const EdgeInsets.all(12),
-                    itemCount: filteredRestaurants.length,
-                    itemBuilder: (context, index) {
-                      final rest = filteredRestaurants[index];
-                      return Card(
-                        margin: const EdgeInsets.only(bottom: 14),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                        elevation: 3,
-                        child: InkWell(
-                          borderRadius: BorderRadius.circular(16),
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (_) => Directionality(
-                                  textDirection: TextDirection.rtl,
-                                  child: RestaurantMenuScreen(restaurant: rest),
-                                ),
-                              ),
-                            );
-                          },
-                          child: Padding(
-                            padding: const EdgeInsets.all(12),
-                            child: Row(
-                              children: [
-                                Container(
-                                  width: 80,
-                                  height: 80,
-                                  decoration: BoxDecoration(
-                                    color: Colors.orange.shade50,
-                                    borderRadius: BorderRadius.circular(12),
-                                  ),
-                                  child: Icon(rest['imageIcon'] as IconData, size: 45, color: const Color(0xFFFF6B00)),
-                                ),
-                                const SizedBox(width: 14),
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Text(rest['name'], style: const TextStyle(fontSize: 17, fontWeight: FontWeight.bold)),
-                                      const SizedBox(height: 6),
-                                      Row(
-                                        children: [
-                                          const Icon(Icons.star, color: Colors.amber, size: 18),
-                                          Text(' ${rest['rating']}  •  ', style: const TextStyle(fontWeight: FontWeight.bold)),
-                                          Icon(Icons.access_time, color: Colors.grey[600], size: 16),
-                                          Text(' ${rest['deliveryTime']}', style: TextStyle(color: Colors.grey[600], fontSize: 13)),
-                                        ],
-                                      ),
-                                      const SizedBox(height: 6),
-                                      Text('توصيل: ${rest['deliveryFee']} ل.س', style: const TextStyle(color: Color(0xFFFF6B00), fontSize: 13, fontWeight: FontWeight.w600)),
-                                    ],
-                                  ),
-                                ),
-                                const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey),
-                              ],
-                            ),
+            child: ListView.builder(
+              padding: const EdgeInsets.all(12),
+              itemCount: filteredRestaurants.length,
+              itemBuilder: (context, index) {
+                final rest = filteredRestaurants[index];
+                return Card(
+                  margin: const EdgeInsets.only(bottom: 12),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+                  elevation: 2,
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(15),
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => Directionality(
+                            textDirection: TextDirection.rtl,
+                            child: RestaurantMenuScreen(restaurant: rest),
                           ),
                         ),
                       );
                     },
+                    child: Padding(
+                      padding: const EdgeInsets.all(12),
+                      child: Row(
+                        children: [
+                          Container(
+                            width: 75,
+                            height: 75,
+                            decoration: BoxDecoration(
+                              color: Colors.orange.shade50,
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Icon(rest['imageIcon'] as IconData, size: 40, color: const Color(0xFFFF6B00)),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(rest['name'], style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                                const SizedBox(height: 4),
+                                Row(
+                                  children: [
+                                    const Icon(Icons.star, color: Colors.amber, size: 16),
+                                    Text(' ${rest['rating']}  •  ', style: const TextStyle(fontWeight: FontWeight.bold)),
+                                    const Icon(Icons.access_time, color: Colors.grey, size: 14),
+                                    Text(' ${rest['deliveryTime']}', style: const TextStyle(color: Colors.grey, fontSize: 12)),
+                                  ],
+                                ),
+                                const SizedBox(height: 4),
+                                Text('التوصيل: ${rest['deliveryFee']} ل.س', style: const TextStyle(color: Color(0xFFFF6B00), fontSize: 12, fontWeight: FontWeight.bold)),
+                              ],
+                            ),
+                          ),
+                          const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey),
+                        ],
+                      ),
+                    ),
                   ),
+                );
+              },
+            ),
           ),
         ],
       ),
@@ -242,9 +228,7 @@ class _RestaurantsListScreenState extends State<RestaurantsListScreen> {
   }
 }
 
-// ============================================================================
-// 2. شاشة منيو المطعم واختيار الوجبات
-// ============================================================================
+// 2. شاشة المنيو
 class RestaurantMenuScreen extends StatefulWidget {
   final Map<String, dynamic> restaurant;
   const RestaurantMenuScreen({super.key, required this.restaurant});
@@ -268,9 +252,7 @@ class _RestaurantMenuScreenState extends State<RestaurantMenuScreen> {
     });
   }
 
-  int get _totalCartItems {
-    return _cartQuantities.values.fold(0, (sum, q) => sum + q);
-  }
+  int get _totalItems => _cartQuantities.values.fold(0, (sum, q) => sum + q);
 
   int get _subtotal {
     int total = 0;
@@ -301,7 +283,7 @@ class _RestaurantMenuScreenState extends State<RestaurantMenuScreen> {
 
           return Card(
             margin: const EdgeInsets.only(bottom: 12),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
             child: Padding(
               padding: const EdgeInsets.all(12),
               child: Row(
@@ -310,11 +292,11 @@ class _RestaurantMenuScreenState extends State<RestaurantMenuScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(item['name'], style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                        Text(item['name'], style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
                         const SizedBox(height: 4),
-                        Text(item['desc'], style: TextStyle(color: Colors.grey[600], fontSize: 13)),
-                        const SizedBox(height: 8),
-                        Text('${item['price']} ل.س', style: const TextStyle(color: Color(0xFFFF6B00), fontWeight: FontWeight.bold, fontSize: 15)),
+                        Text(item['desc'], style: TextStyle(color: Colors.grey[600], fontSize: 12)),
+                        const SizedBox(height: 6),
+                        Text('${item['price']} ل.س', style: const TextStyle(color: Color(0xFFFF6B00), fontWeight: FontWeight.bold)),
                       ],
                     ),
                   ),
@@ -324,7 +306,7 @@ class _RestaurantMenuScreenState extends State<RestaurantMenuScreen> {
                           style: ElevatedButton.styleFrom(
                             backgroundColor: const Color(0xFFFF6B00),
                             foregroundColor: Colors.white,
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                           ),
                           child: const Text('إضافة'),
                         )
@@ -334,7 +316,7 @@ class _RestaurantMenuScreenState extends State<RestaurantMenuScreen> {
                               onPressed: () => _updateQuantity(item['id'], -1),
                               icon: const Icon(Icons.remove_circle_outline, color: Colors.red),
                             ),
-                            Text('$qty', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                            Text('$qty', style: const TextStyle(fontWeight: FontWeight.bold)),
                             IconButton(
                               onPressed: () => _updateQuantity(item['id'], 1),
                               icon: const Icon(Icons.add_circle_outline, color: Colors.green),
@@ -347,42 +329,28 @@ class _RestaurantMenuScreenState extends State<RestaurantMenuScreen> {
           );
         },
       ),
-      bottomNavigationBar: _totalCartItems > 0
+      bottomNavigationBar: _totalItems > 0
           ? Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: const Color(0xFFFF6B00),
-                boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.2), blurRadius: 10)],
-              ),
+              padding: const EdgeInsets.all(14),
+              color: const Color(0xFFFF6B00),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text('$_totalCartItems وجبات مختارة', style: const TextStyle(color: Colors.white, fontSize: 13)),
-                      Text('$_subtotal ل.س', style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
-                    ],
-                  ),
-                  ElevatedButton.icon(
+                  Text('$_totalItems وجبات  •  $_subtotal ل.س', style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
+                  ElevatedButton(
                     onPressed: () {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
                           builder: (_) => Directionality(
                             textDirection: TextDirection.rtl,
-                            child: CartCheckoutScreen(
-                              restaurant: widget.restaurant,
-                              cartQuantities: _cartQuantities,
-                            ),
+                            child: CheckoutScreen(restaurant: widget.restaurant, cartQuantities: _cartQuantities),
                           ),
                         ),
                       );
                     },
-                    icon: const Icon(Icons.shopping_cart_checkout),
-                    label: const Text('إتمام الطلب', style: TextStyle(fontWeight: FontWeight.bold)),
                     style: ElevatedButton.styleFrom(backgroundColor: Colors.white, foregroundColor: const Color(0xFFFF6B00)),
+                    child: const Text('إتمام الطلب', style: TextStyle(fontWeight: FontWeight.bold)),
                   ),
                 ],
               ),
@@ -392,26 +360,22 @@ class _RestaurantMenuScreenState extends State<RestaurantMenuScreen> {
   }
 }
 
-// ============================================================================
-// 3. شاشة السلة ونموذج العنوان وإرسال الطلب
-// ============================================================================
-class CartCheckoutScreen extends StatefulWidget {
+// 3. شاشة إتمام الطلب
+class CheckoutScreen extends StatefulWidget {
   final Map<String, dynamic> restaurant;
   final Map<String, int> cartQuantities;
 
-  const CartCheckoutScreen({super.key, required this.restaurant, required this.cartQuantities});
+  const CheckoutScreen({super.key, required this.restaurant, required this.cartQuantities});
 
   @override
-  State<CartCheckoutScreen> createState() => _CartCheckoutScreenState();
+  State<CheckoutScreen> createState() => _CheckoutScreenState();
 }
 
-class _CartCheckoutScreenState extends State<CartCheckoutScreen> {
+class _CheckoutScreenState extends State<CheckoutScreen> {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   final _phoneController = TextEditingController();
   final _addressController = TextEditingController();
-  final _notesController = TextEditingController();
-
   bool _isSubmitting = false;
 
   int get _subtotal {
@@ -426,7 +390,6 @@ class _CartCheckoutScreenState extends State<CartCheckoutScreen> {
 
   Future<void> _submitOrder() async {
     if (!_formKey.currentState!.validate()) return;
-
     setState(() => _isSubmitting = true);
 
     try {
@@ -436,7 +399,6 @@ class _CartCheckoutScreenState extends State<CartCheckoutScreen> {
       widget.cartQuantities.forEach((itemId, qty) {
         final item = menu.firstWhere((m) => m['id'] == itemId);
         orderItems.add({
-          'itemId': itemId,
           'name': item['name'],
           'price': item['price'],
           'quantity': qty,
@@ -444,53 +406,38 @@ class _CartCheckoutScreenState extends State<CartCheckoutScreen> {
       });
 
       final deliveryFee = widget.restaurant['deliveryFee'] as int;
-      final grandTotal = _subtotal + deliveryFee;
 
-      // حفظ الطلب في Firebase Firestore
       await FirebaseFirestore.instance.collection('orders').add({
-        'restaurantId': widget.restaurant['id'],
         'restaurantName': widget.restaurant['name'],
         'customerName': _nameController.text.trim(),
         'customerPhone': _phoneController.text.trim(),
         'customerAddress': _addressController.text.trim(),
-        'notes': _notesController.text.trim(),
         'items': orderItems,
         'subtotal': _subtotal,
         'deliveryFee': deliveryFee,
-        'grandTotal': grandTotal,
+        'grandTotal': _subtotal + deliveryFee,
         'status': 'قيد الانتظار',
         'createdAt': FieldValue.serverTimestamp(),
       });
 
       if (!mounted) return;
 
-      // إظهار نتيجه النجاح
       showDialog(
         context: context,
         barrierDismissible: false,
         builder: (_) => AlertDialog(
-          title: const Row(
-            children: [
-              Icon(Icons.check_circle, color: Colors.green, size: 30),
-              SizedBox(width: 8),
-              Text('تم إرسال الطلب!'),
-            ],
-          ),
-          content: Text('شكراً ${_nameController.text}! تم تسجيل طلبك بنجاح من ${widget.restaurant['name']}.\nسيتم التواصل معك هاتفياً للتأكيد.'),
+          title: const Text('تم بنجاح!'),
+          content: const Text('تم إرسال طلبك إلى المطعم بنجاح.'),
           actions: [
             TextButton(
-              onPressed: () {
-                Navigator.of(context).popUntil((route) => route.isFirst);
-              },
-              child: const Text('العودة للرئيسية', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+              onPressed: () => Navigator.of(context).popUntil((route) => route.isFirst),
+              child: const Text('حسناً'),
             ),
           ],
         ),
       );
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('حدث خطأ في إرسال الطلب: $e'), backgroundColor: Colors.red),
-      );
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('خطأ: $e'), backgroundColor: Colors.red));
     } finally {
       if (mounted) setState(() => _isSubmitting = false);
     }
@@ -498,6 +445,52 @@ class _CartCheckoutScreenState extends State<CartCheckoutScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final menu = widget.restaurant['menu'] as List<dynamic>;
     final deliveryFee = widget.restaurant['deliveryFee'] as int;
-    final grandTotal = _subtotal
+    final grandTotal = _subtotal + deliveryFee;
+
+    return Scaffold(
+      appBar: AppBar(backgroundColor: const Color(0xFFFF6B00), title: const Text('تأكيد الطلب', style: TextStyle(color: Colors.white))),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(16),
+        child: Form(
+          key: _formKey,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('الإجمالي الكلي مع التوصيل: $grandTotal ل.س', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Color(0xFFFF6B00))),
+              const SizedBox(height: 20),
+              TextFormField(
+                controller: _nameController,
+                decoration: const InputDecoration(labelText: 'الاسم الكامل', border: OutlineInputBorder()),
+                validator: (v) => v == null || v.isEmpty ? 'مطلوب' : null,
+              ),
+              const SizedBox(height: 12),
+              TextFormField(
+                controller: _phoneController,
+                keyboardType: TextInputType.phone,
+                decoration: const InputDecoration(labelText: 'رقم الهاتف', border: OutlineInputBorder()),
+                validator: (v) => v == null || v.isEmpty ? 'مطلوب' : null,
+              ),
+              const SizedBox(height: 12),
+              TextFormField(
+                controller: _addressController,
+                decoration: const InputDecoration(labelText: 'العنوان في درعا', border: OutlineInputBorder()),
+                validator: (v) => v == null || v.isEmpty ? 'مطلوب' : null,
+              ),
+              const SizedBox(height: 24),
+              SizedBox(
+                width: double.infinity,
+                height: 48,
+                child: ElevatedButton(
+                  onPressed: _isSubmitting ? null : _submitOrder,
+                  style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFFF6B00), foregroundColor: Colors.white),
+                  child: _isSubmitting ? const CircularProgressIndicator(color: Colors.white) : const Text('إرسال الطلب', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
