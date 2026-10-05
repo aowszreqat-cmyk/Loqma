@@ -23,7 +23,11 @@ class LoqmaApp extends StatelessWidget {
         primarySwatch: Colors.orange,
         useMaterial3: true,
       ),
-      home: const HomeScreen(),
+      // ضبط الاتجاه العام للتطبيق من اليمين إلى اليسار ليدعم اللغة العربية بشكل كامل
+      home: const Directionality(
+        textDirection: TextDirection.rtl,
+        child: HomeScreen(),
+      ),
     );
   }
 }
@@ -48,11 +52,13 @@ class HomeScreen extends StatelessWidget {
             Text(
               'أهلاً بك في تطبيق لُقمة!',
               style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+              textDirection: TextDirection.rtl,
             ),
             SizedBox(height: 10),
             Text(
               'التطبيق يعمل بنجاح ومربوط مع Firebase',
               style: TextStyle(fontSize: 16, color: Colors.grey),
+              textDirection: TextDirection.rtl,
             ),
           ],
         ),
